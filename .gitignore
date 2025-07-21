@@ -25,3 +25,7 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+git add .travis.yml .gitignore
+git commit -m "Add Travis CI config and update gitignore"
+git push -u origin main

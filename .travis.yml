@@ -1,0 +1,21 @@
+language: php
+
+php:
+  - '8.2'
+
+cache:
+  directories:
+    - vendor
+    - $HOME/.composer/cache
+
+before_script:
+  # set up env and SQLite
+  - cp .env.example .env
+  - composer install --no-interaction --prefer-dist
+  - php artisan key:generate
+  - sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
+  - touch database/database.sqlite
+  - php artisan migrate --force
+
+script:
+  - vendor/bin/pest
