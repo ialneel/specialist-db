@@ -2,8 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: ['**']   # or just delete the whole "branches" line
   pull_request:
+
 
 jobs:
   tests:
