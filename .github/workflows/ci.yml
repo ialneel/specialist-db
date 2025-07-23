@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    services:
+      # Use sqlite for speed; comment this block out if you really need SQL Server
+      # If you need MySQL/Postgres, define them here similarly.
+      # mssql:
+      #   image: mcr.microsoft.com/mssql/server:2022-latest
+      #   env:
+      #     ACCEPT_EULA: "Y"
+      #     SA_PASSWORD: "YourStrong@Password1"
+      #   ports: [ "1433:1433" ]
+      #   options: >-
+      #     --health-cmd=" /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Password1 -Q 'SELECT 1'"
+      #     --health-interval=10s --health-timeout=5s --health-retries=10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, intl, xml, sqlite, pdo_sqlite
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install Composer deps
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Copy env
+        run: cp .env.example .env
+
+      - name: Generate key
+        run: php artisan key:generate
+
+      - name: Use SQLite for tests
+        run: |
+          echo "DB_CONNECTION=sqlite" >> .env
+          echo "DB_DATABASE=:memory:" >> .env
+
+      - name: Run migrations
+        run: php artisan migrate --force
+
+      - name: Run tests
+        run: |
+          if [ -f vendor/bin/pest ]; then
+            vendor/bin/pest
+          else
+            vendor/bin/phpunit
+          fi
