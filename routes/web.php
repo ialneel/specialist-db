@@ -43,5 +43,13 @@ Route::get('/db-check', function () {
         return '❌ DB Connection Failed: ' . $e->getMessage();
     }
 });
+Route::get('/healthz', function () {
+    return response()->json([
+        'status' => 'ok',
+        'app'    => config('app.name'),
+        'time'   => now()->toISOString(),
+    ]);
+});
+
 
 require __DIR__.'/auth.php';
