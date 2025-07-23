@@ -9,19 +9,6 @@ jobs:
   tests:
     runs-on: ubuntu-latest
 
-    services:
-      # Use sqlite for speed; comment this block out if you really need SQL Server
-      # If you need MySQL/Postgres, define them here similarly.
-      # mssql:
-      #   image: mcr.microsoft.com/mssql/server:2022-latest
-      #   env:
-      #     ACCEPT_EULA: "Y"
-      #     SA_PASSWORD: "YourStrong@Password1"
-      #   ports: [ "1433:1433" ]
-      #   options: >-
-      #     --health-cmd=" /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Password1 -Q 'SELECT 1'"
-      #     --health-interval=10s --health-timeout=5s --health-retries=10
-
     steps:
       - uses: actions/checkout@v4
 
