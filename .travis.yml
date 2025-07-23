@@ -5,17 +5,24 @@ php:
 
 cache:
   directories:
-    - vendor
     - $HOME/.composer/cache
+    - vendor
+
+before_install:
+  - cp .env.example .env
+  - composer self-update
+
+install:
+  - composer install --no-interaction --prefer-dist
 
 before_script:
-  # set up env and SQLite
-  - cp .env.example .env
-  - composer install --no-interaction --prefer-dist
+  # switch to sqlite for CI
   - php artisan key:generate
-  - sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
+  - sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
+  - sed -i 's|^DB_DATABASE=.*|DB_DATABASE='database/database.sqlite'|' .env
   - touch database/database.sqlite
-  - php artisan migrate --force
+  - php artisan migrate --force --database=sqlite
 
 script:
-  - vendor/bin/pest
+  # Run Pest if present, otherwise fallback to PHPUnit
+  - if [ -f vendor/bin/pest ]; then vendor/bin/pest; else vendor/bin/phpunit; fi
